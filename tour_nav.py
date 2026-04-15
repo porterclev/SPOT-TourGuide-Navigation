@@ -25,8 +25,16 @@ from bosdyn.client.power import PowerClient, power_on_motors, safe_power_off_mot
 from bosdyn.client.robot_command import RobotCommandBuilder, RobotCommandClient
 from bosdyn.client.robot_state import RobotStateClient
 
-def main():
-    """Run the command-line interface."""
+def navitage_to(waypoint: str):
+    """Tell spot to navigate to a waypoint on tour map
+
+    Args:
+        waypoint (str): waypoint id in `downloaded_map`
+
+    Returns:
+        _type_: _description_
+    """
+    
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-u', '--upload-filepath',
                         help='Full filepath to graph and snapshots to be uploaded.', required=True)
@@ -47,7 +55,7 @@ def main():
     try:
         with LeaseKeepAlive(lease_client, must_acquire=True, return_at_exit=True):
             try:
-                graph_nav_command_line.run("6 waypoint_1")
+                graph_nav_command_line.run(f"6 {waypoint}")
                 return True
             except Exception as exc:  # pylint: disable=broad-except
                 print(exc)
@@ -61,5 +69,5 @@ def main():
 
 
 if __name__ == '__main__':
-    if not main():
+    if not navitage_to("waypoint_1"):
         sys.exit(1)
