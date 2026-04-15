@@ -1,0 +1,1 @@
+python spot-sdk/python/examples/graph_nav_view_map/view_map.py ./maps/downloaded_graph -a
