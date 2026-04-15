@@ -16,7 +16,7 @@ import time
 import traceback
 
 import google.protobuf.timestamp_pb2
-import graph_nav_sdk.graph_nav_util as graph_nav_util
+import graph_nav_util as graph_nav_util
 import grpc
 
 import bosdyn.client.channel
@@ -597,7 +597,7 @@ class GraphNavInterface(object):
             self._robot_command_client.robot_command(RobotCommandBuilder.safe_power_off_command(),
                                                      end_time_secs=time.time())
 
-    def run(self):
+    def run(self, input_args):
         """Main loop for the command line interface."""
         while True:
             print("Options:")
@@ -605,7 +605,7 @@ class GraphNavInterface(object):
                 print(f"\t({key}):\t{description}")
             print("\t(q):\tExit.")
             try:
-                inputs = input('>')
+                inputs = input_args
             except NameError:
                 pass
             req_type = str.split(inputs)[0]

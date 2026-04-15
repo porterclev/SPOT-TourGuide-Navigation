@@ -47,7 +47,7 @@ def main():
     try:
         with LeaseKeepAlive(lease_client, must_acquire=True, return_at_exit=True):
             try:
-                graph_nav_command_line.run()
+                graph_nav_command_line.run("6 waypoint_1")
                 return True
             except Exception as exc:  # pylint: disable=broad-except
                 print(exc)

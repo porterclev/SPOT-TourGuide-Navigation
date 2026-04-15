@@ -1,0 +1,1 @@
+python ./graph_nav_sdk/graph_nav_command_line.py -u ./maps/downloaded_graph

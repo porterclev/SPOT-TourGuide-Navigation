@@ -12,7 +12,7 @@ import sys
 import time
 
 import google.protobuf.timestamp_pb2
-import graph_nav_sdk.graph_nav_util as graph_nav_util
+import graph_nav_util as graph_nav_util
 import grpc
 from google.protobuf import wrappers_pb2 as wrappers
 
