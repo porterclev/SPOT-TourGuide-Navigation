@@ -1,5 +1,5 @@
 activate.sh
 deactivate.sh
-__pycache__/
-graph_nav_sdk/
-spot_sdk/
+__pycache__
+graph_nav_sdk
+spot-sdk
