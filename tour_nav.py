@@ -588,32 +588,25 @@ class GraphNavInterface(object):
             self._robot_command_client.robot_command(RobotCommandBuilder.safe_power_off_command(),
                                                      end_time_secs=time.time())
 
-    def run(self, input_args):
-        """Main loop for the command line interface."""
-        while True:
-            print("Options:")
-            for key, (_, description) in self._command_dictionary.items():
-                print(f"\t({key}):\t{description}")
-            print("\t(q):\tExit.")
-            try:
-                inputs = input_args
-            except NameError:
-                pass
-            req_type = str.split(inputs)[0]
+    def run(self, input_args): 
+        # preprocesses input args
+        try:
+            inputs = input_args
+        except NameError:
+            pass
+        req_type = str.split(inputs)[0]
 
-            if req_type == 'q':
-                self._on_quit()
-                break
-
-            if req_type not in self._command_dictionary:
-                print('Request not in the known command dictionary.')
-                continue
-            try:
-                cmd_func = self._command_dictionary[req_type][0]
-                cmd_func(str.split(inputs)[1:])
-            except Exception as e:
-                print(e)
-                print(traceback.format_exc())
+        # check if req type is a valid command
+        if req_type not in self._command_dictionary:
+            print('Request not in the known command dictionary.')
+        
+        # execute command 
+        try:
+            cmd_func = self._command_dictionary[req_type][0]
+            cmd_func(str.split(inputs)[1:])
+        except Exception as e:
+            print(e)
+            print(traceback.format_exc())
 
 
 def navitage_to(waypoint: str):
@@ -623,12 +616,12 @@ def navitage_to(waypoint: str):
         waypoint (str): waypoint id in `downloaded_map`
 
     Returns:
-        _type_: _description_
+        bool: False if Failed
     """
+    MAP_PATH = "./maps/downloaded_graph"
+    
     
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('-u', '--upload-filepath',
-                        help='Full filepath to graph and snapshots to be uploaded.', required=True)
     parser.add_argument(
         '-g', '--use-gps', action='store_true', help=
         'Enable GPS commands for this robot. The robot must have a GPS payload. The map must have been recorded with GPS.'
@@ -641,7 +634,7 @@ def navitage_to(waypoint: str):
     robot = sdk.create_robot(options.hostname)
     bosdyn.client.util.authenticate(robot)
 
-    graph_nav_command_line = GraphNavInterface(robot, options.upload_filepath, options.use_gps)
+    graph_nav_command_line = GraphNavInterface(robot, MAP_PATH, options.use_gps)
     lease_client = robot.ensure_client(LeaseClient.default_service_name)
     try:
         with LeaseKeepAlive(lease_client, must_acquire=True, return_at_exit=True):
@@ -660,5 +653,12 @@ def navitage_to(waypoint: str):
 
 
 if __name__ == '__main__':
-    if not navitage_to("waypoint_1"):
+    waypoints = {}
+    
+    for index, filename in enumerate(os.listdir("./maps/downloaded_graph/waypoint_snapshots")):
+        waypoints.update({f"w{index}": filename[9:]})
+    
+    print(waypoints)
+    
+    if not navitage_to(waypoints["w1"]):
         sys.exit(1)
