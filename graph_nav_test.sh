@@ -1,1 +1,1 @@
-python ./graph_nav_sdk/graph_nav_command_line.py -u ./maps/downloaded_graph
+python ./graph_nav_sdk/graph_nav_command_line.py -u ./maps/downloaded_graph -h 192.168.80.3

@@ -608,6 +608,26 @@ class GraphNavInterface(object):
             print(e)
             print(traceback.format_exc())
 
+def get_waypoints(map_directory):
+    """List the waypoint ids and edge ids of the graph currently on the
+    robot."""
+
+    graph_filename = os.path.join(map_directory, 'graph')
+    
+    if not os.path.exists(graph_filename):
+        print(f"Graph file not found: {graph_filename}")
+        return []
+
+    # Read the graph file
+    with open(graph_filename, 'rb') as f:
+        data = f.read()
+        graph = map_pb2.Graph()
+        graph.ParseFromString(data)
+    
+        
+    # Extract ID and names
+    waypoints = {wp.annotations.name: wp.id for wp in graph.waypoints}
+    return waypoints
 
 def navitage_to(waypoint: str):
     """Tell spot to navigate to a waypoint on tour map
@@ -619,7 +639,6 @@ def navitage_to(waypoint: str):
         bool: False if Failed
     """
     MAP_PATH = "./maps/downloaded_graph"
-    
     
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -636,10 +655,16 @@ def navitage_to(waypoint: str):
 
     graph_nav_command_line = GraphNavInterface(robot, MAP_PATH, options.use_gps)
     lease_client = robot.ensure_client(LeaseClient.default_service_name)
+    
+    waypoints: dict = get_waypoints(MAP_PATH)
     try:
         with LeaseKeepAlive(lease_client, must_acquire=True, return_at_exit=True):
             try:
-                graph_nav_command_line.run(f"6 {waypoint}")
+                if(waypoint not in waypoints): 
+                    print("Unable to find waypoint names:ids")
+                    return False
+                    
+                graph_nav_command_line.run(f"6 {waypoints[waypoint]}")
                 return True
             except Exception as exc:  # pylint: disable=broad-except
                 print(exc)
@@ -653,12 +678,5 @@ def navitage_to(waypoint: str):
 
 
 if __name__ == '__main__':
-    waypoints = {}
-    
-    for index, filename in enumerate(os.listdir("./maps/downloaded_graph/waypoint_snapshots")):
-        waypoints.update({f"w{index}": filename[9:]})
-    
-    print(waypoints)
-    
-    if not navitage_to(waypoints["w1"]):
+    if not navitage_to("waypoint_1"):
         sys.exit(1)
